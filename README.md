@@ -98,6 +98,7 @@ Hybrid port — text encoding stays in PyTorch, everything else runs in MLX:
 
 ## Links
 
+- Blog post: [riteshkhanna.com/blog/mlx-nucleus-image](https://riteshkhanna.com/blog/mlx-nucleus-image)
 - Original model: [NucleusAI/Nucleus-Image](https://huggingface.co/NucleusAI/Nucleus-Image)
 - Source code: [github.com/treadon/mlx-nucleus-image](https://github.com/treadon/mlx-nucleus-image)
 - [Apple MLX](https://github.com/ml-explore/mlx)
