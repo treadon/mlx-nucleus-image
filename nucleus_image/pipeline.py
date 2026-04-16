@@ -119,6 +119,10 @@ class NucleusImagePipeline:
         latents = mx.random.normal((1, latent_h, latent_w, 16))
         tokens = patchify(latents, patch_size=2)
 
+        # Grid dimensions for RoPE (patch_size=2)
+        grid_h = latent_h // 2
+        grid_w = latent_w // 2
+
         # Sigma schedule: raw linspace, no shift
         # (scheduler config: use_dynamic_shifting=False, shift=1.0)
         sigmas = np.linspace(1.0, 1.0 / num_inference_steps, num_inference_steps)
@@ -131,10 +135,10 @@ class NucleusImagePipeline:
             # Transformer receives sigma (0-1), Timesteps(scale=1000) handles the rest
             t_normalized = mx.array([t.item() / 1000.0])
 
-            pred = self.dit(tokens, t_normalized, text_bth)
+            pred = self.dit(tokens, t_normalized, text_bth, grid_h=grid_h, grid_w=grid_w)
 
             if do_cfg:
-                neg_pred = self.dit(tokens, t_normalized, neg_text_embeddings)
+                neg_pred = self.dit(tokens, t_normalized, neg_text_embeddings, grid_h=grid_h, grid_w=grid_w)
                 # CFG with norm rescaling
                 comb = neg_pred + guidance_scale * (pred - neg_pred)
                 cond_norm = mx.sqrt(mx.sum(pred * pred, axis=-1, keepdims=True) + 1e-8)

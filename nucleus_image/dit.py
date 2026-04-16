@@ -466,7 +466,7 @@ class NucleusMoEDiT(nn.Module):
         # proj_out: [64, 2048] → 64 = patch_size² * out_channels
         self.proj_out = nn.Linear(hidden, in_channels, bias=False)
 
-    def __call__(self, hidden_states, timestep, txt_kv):
+    def __call__(self, hidden_states, timestep, txt_kv, grid_h=None, grid_w=None):
         B = hidden_states.shape[0]
 
         x = self.img_in(hidden_states)
@@ -481,8 +481,11 @@ class NucleusMoEDiT(nn.Module):
 
         # Build RoPE: image patches are on a grid, text follows after
         N_img = hidden_states.shape[1]
-        grid_h = int(N_img ** 0.5)
-        grid_w = N_img // grid_h
+        if grid_h is None or grid_w is None:
+            # Fallback: assume square (works only for square images)
+            grid_h = int(N_img ** 0.5)
+            grid_w = N_img // grid_h
+        assert grid_h * grid_w == N_img, f"Grid {grid_h}x{grid_w} != N_img {N_img}"
         img_cos, img_sin = compute_image_rope(
             grid_h, grid_w, self._axes_dim,
             self._pos_cos, self._pos_sin, self._neg_cos, self._neg_sin,
