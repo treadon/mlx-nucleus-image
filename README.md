@@ -36,63 +36,19 @@ An [MLX](https://github.com/ml-explore/mlx) port of [NucleusAI/Nucleus-Image](ht
 
 ---
 
-## Usage
-
-```bash
-pip install mlx torch transformers huggingface_hub pillow
-```
-
-### Python API
-
-```python
-import torch, gc
-import mlx.core as mx
-from transformers import AutoProcessor, AutoModel
-from huggingface_hub import snapshot_download
-import sys
-
-# 1. Encode text (PyTorch, ~16GB, freed after use)
-processor = AutoProcessor.from_pretrained(
-    "NucleusAI/Nucleus-Image", subfolder="processor", trust_remote_code=True)
-text_model = AutoModel.from_pretrained(
-    "NucleusAI/Nucleus-Image", subfolder="text_encoder",
-    dtype=torch.bfloat16, trust_remote_code=True).eval()
-
-SYSTEM = "You are an image generation assistant."
-def encode(prompt):
-    msgs = [{"role": "system", "content": SYSTEM},
-            {"role": "user", "content": [{"type": "text", "text": prompt}]}]
-    fmt = processor.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[fmt], return_tensors="pt", padding=True)
-    with torch.no_grad():
-        out = text_model(**inputs, output_hidden_states=True, use_cache=False)
-    return mx.array(out.hidden_states[-8][0].cpu().float().numpy())
-
-pos = encode("A red apple on a white table")
-neg = encode("")
-del text_model, processor; gc.collect()
-
-# 2. Generate (MLX, ~34GB weights, 4-bit quantized)
-sys.path.insert(0, snapshot_download("treadon/mlx-nucleus-image"))
-from nucleus_image import NucleusImagePipeline
-
-pipe = NucleusImagePipeline.from_pretrained("treadon/mlx-nucleus-image", quantize=4)
-img = pipe.generate(
-    text_embeddings=mx.expand_dims(pos, 0),
-    neg_text_embeddings=mx.expand_dims(neg, 0),
-    height=512, width=512, num_inference_steps=30, guidance_scale=4.0, seed=42)
-img.save("output.png")
-```
-
-> First run downloads ~16GB (text encoder) + ~34GB (DiT/VAE weights). Cached by HuggingFace after that.
-
-### CLI
+## Quick Start
 
 ```bash
 git clone https://huggingface.co/treadon/mlx-nucleus-image
 cd mlx-nucleus-image
+pip install mlx torch transformers huggingface_hub pillow
+
 python generate.py --prompt "A red apple on a white table" --seed 42
 ```
+
+The first run downloads ~16GB (text encoder from [NucleusAI](https://huggingface.co/NucleusAI/Nucleus-Image)). Weights for the DiT and VAE are included in this repo. Everything is cached after the first run.
+
+### Options
 
 | Flag | Default | Description |
 |------|---------|-------------|
@@ -121,7 +77,7 @@ Measured on M4 Pro, 64GB, 4-bit quantization:
 
 ## How it works
 
-This is a hybrid port — text encoding stays in PyTorch, everything else runs in MLX:
+Hybrid port — text encoding stays in PyTorch, everything else runs in MLX:
 
 1. **Text encoder** (PyTorch): Qwen3-VL-8B extracts text embeddings. Loaded once, then freed (~16GB).
 2. **DiT** (MLX): 17B MoE transformer with optional 4-bit quantization on attention/modulation layers. Expert weights stay in bfloat16.
