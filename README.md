@@ -21,6 +21,9 @@ An [MLX](https://github.com/ml-explore/mlx) port of [NucleusAI/Nucleus-Image](ht
 
 <table>
 <tr>
+<td colspan="3"><img src="samples/fairy.png" width="100%"><br><sub>An ethereal fairy with translucent wings sitting on a crescent moon surrounded by skulls (1024×576, 50 steps, CFG 3.5, bf16)</sub></td>
+</tr>
+<tr>
 <td><img src="samples/apple.png" width="200"><br><sub>A red apple on a white table</sub></td>
 <td><img src="samples/puppy.png" width="200"><br><sub>A golden retriever puppy in autumn leaves</sub></td>
 <td><img src="samples/city.png" width="200"><br><sub>A futuristic city skyline at sunset</sub></td>
@@ -32,7 +35,7 @@ An [MLX](https://github.com/ml-explore/mlx) port of [NucleusAI/Nucleus-Image](ht
 </tr>
 </table>
 
-<sub>512x512, 30 steps, CFG 4.0, 4-bit quantized, M4 Pro</sub>
+<sub>Small grid: 512x512, 30 steps, CFG 4.0, 4-bit quantized, M4 Pro</sub>
 
 ---
 
