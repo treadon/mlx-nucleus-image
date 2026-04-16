@@ -38,17 +38,11 @@ An [MLX](https://github.com/ml-explore/mlx) port of [NucleusAI/Nucleus-Image](ht
 
 ## Usage
 
-### Option A: Clone and run (recommended)
-
 ```bash
-git clone https://huggingface.co/treadon/mlx-nucleus-image
-cd mlx-nucleus-image
 pip install mlx torch transformers huggingface_hub pillow
-
-python generate.py --prompt "A red apple on a white table" --seed 42
 ```
 
-### Option B: Python API (no clone needed)
+### Python API
 
 ```python
 import torch, gc
@@ -92,7 +86,13 @@ img.save("output.png")
 
 > First run downloads ~16GB (text encoder) + ~34GB (DiT/VAE weights). Cached by HuggingFace after that.
 
-### CLI options
+### CLI
+
+```bash
+git clone https://huggingface.co/treadon/mlx-nucleus-image
+cd mlx-nucleus-image
+python generate.py --prompt "A red apple on a white table" --seed 42
+```
 
 | Flag | Default | Description |
 |------|---------|-------------|
